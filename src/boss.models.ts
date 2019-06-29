@@ -1,5 +1,3 @@
-import { compareDate } from './util';
-
 export class Boss {
   private get count(): number {
     return Math.round(24 / this.bossType.interval);
@@ -45,31 +43,18 @@ export class Boss {
         toBeScheduled.setDate(today.getDate());
 
         // 時間ずれ調整。1回ボスあたり1ボスズレ分(通常1分くらい)進めるかつ更新時の告知を設定
-        const offset = Math.round(this.calcOffset(toBeScheduled) * this.jitter) - before;
+        const offset = Math.round(this.calcOffset(toBeScheduled) * this.jitter);
+
+        // ここで本日の沸き時間が決まる
         toBeScheduled.setMinutes(toBeScheduled.getMinutes() + offset);
 
-        if (compareDate(toBeScheduled, today) === -1) {
-          // Offset計算により、前日の日付になっていた場合は、最終的なトリガ設定時に本日の最後に設定されるためOffsetカウントを調整
-          toBeScheduled.setMinutes(toBeScheduled.getMinutes() + this.betweenFirstEnd);
-
-          if (compareDate(toBeScheduled, today) === 0) {
-            // Offsetカウント調整して、元の日付にもどった場合、そのトリガは翌日分として登録されるので本日分はなし
-            return;
-          }
-        } else if (compareDate(toBeScheduled, today) === 1) {
-          // Offset計算により、翌日の日付になっていた場合は、最終的なトリガ設定時に本日の最初に設定されるためOffsetカウントを調整
-          toBeScheduled.setMinutes(toBeScheduled.getMinutes() - this.betweenFirstEnd);
-
-          if (compareDate(toBeScheduled, today) === 0) {
-            // Offsetカウント調整して、元の日付にもどった場合、そのトリガは前日分として登録されるので本日分はなし
-            return;
-          }
-        }
-
-        // 情報が古い場合は通知しない
+        // メンテ後すぐ等、情報が古い場合は通知しない
         if (this.isOldInfo(toBeScheduled)) {
           return;
         }
+
+        // 通知を出す時間を設定する
+        toBeScheduled.setMinutes(toBeScheduled.getMinutes() - before);
 
         this.scheduleList.push({ time: toBeScheduled, before });
       });
