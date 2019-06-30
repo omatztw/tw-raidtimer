@@ -12,14 +12,15 @@ export class Boss {
   public scheduleList: Schedule[];
   private bossType: BossType;
   private latestSpawnTime: Date;
-  private jitter = 1;
+  private jitter: number;
   private commonInfo: CommonInfo;
 
   private alertBefore: number[] = [5];
 
-  constructor(bossType: BossType, common: CommonInfo) {
+  constructor(bossType: BossType, common: CommonInfo, jitter: number) {
     this.bossType = bossType;
     this.commonInfo = common;
+    this.jitter = jitter;
   }
 
   public updateLatestSpawnTime(latestSpawnTime: Date): void {
@@ -74,7 +75,7 @@ export class Boss {
 
         // 本通知に対応する沸き時間は、通知時刻 + before分で算出可能
         const spawnDate = new Date(toBeScheduled.getTime() + before * 60 * 1000);
-        console.log(`The Boss ${this.bossType.name} will spawn at ${spawnDate}...`);
+        // console.log(`The Boss ${this.bossType.name} will spawn at ${spawnDate}...`);
 
         // 本通知に対応する沸き時間が古くて信用できない情報の場合は通知しない
         if (this.isOldInfo(spawnDate)) {

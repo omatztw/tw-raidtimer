@@ -14,35 +14,44 @@ const BOSS_TYPES = {
 
 function main() {
   delTrigger();
+
+  const sheetElph = getSpreadSheet(ServerName.Elph);
+
   const commonInfo: CommonInfo = {
-    maintenance: getMaintenanceTime()
+    maintenance: getMaintenanceTime(sheetElph)
   };
 
-  const sheetElph = getSheet(ServerName.Elph);
   if (sheetElph) {
     const elphInfo = createBossInfo(sheetElph, ServerName.Elph, commonInfo);
     scheduling(elphInfo);
   }
 
-  const sheetRose = getSheet(ServerName.Rose);
+  const sheetRose = getSpreadSheet(ServerName.Rose);
   if (sheetRose) {
     const roseInfo = createBossInfo(sheetRose, ServerName.Rose, commonInfo);
     scheduling(roseInfo);
   }
 
-  const sheetMoen = getSheet(ServerName.Moen);
+  const sheetMoen = getSpreadSheet(ServerName.Moen);
   if (sheetMoen) {
     const moenInfo = createBossInfo(sheetMoen, ServerName.Moen, commonInfo);
     scheduling(moenInfo);
   }
 }
 
-function createBossInfo(sheet: GoogleAppsScript.Spreadsheet.Sheet, server: ServerName, commonInfo: CommonInfo) {
-  const golron = new Boss(BOSS_TYPES.Golron, commonInfo);
-  const golmodafu = new Boss(BOSS_TYPES.Golmodafu, commonInfo);
+function createBossInfo(
+  spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet,
+  server: ServerName,
+  commonInfo: CommonInfo
+) {
+  const jitter = getJitter(spreadsheet);
+  const golron = new Boss(BOSS_TYPES.Golron, commonInfo, jitter.golron);
+  const golmodafu = new Boss(BOSS_TYPES.Golmodafu, commonInfo, jitter.golmodafu);
+  // console.log(`GOLMODAFU ${JITTER[ServerName[server]].golmodafu} on ${ServerName[server]}`);
+  const spawnTime = getLatestSpawnTime(spreadsheet);
 
-  golron.updateLatestSpawnTime(fetchLatestSpawnTime(sheet, BOSS_TYPES.Golron.name));
-  golmodafu.updateLatestSpawnTime(fetchLatestSpawnTime(sheet, BOSS_TYPES.Golmodafu.name));
+  golron.updateLatestSpawnTime(spawnTime.golron);
+  golmodafu.updateLatestSpawnTime(spawnTime.golmodafu);
 
   return {
     golmodafu,
@@ -53,17 +62,7 @@ function createBossInfo(sheet: GoogleAppsScript.Spreadsheet.Sheet, server: Serve
 
 // SpreadSheet系操作
 
-function fetchLatestSpawnTime(sheet: GoogleAppsScript.Spreadsheet.Sheet, bossName: string) {
-  switch (bossName) {
-    case BOSS_TYPES.Golron.name:
-      return normalize(sheet.getRange(2, 1).getValue());
-    case BOSS_TYPES.Golmodafu.name:
-      return normalize(sheet.getRange(2, 2).getValue());
-    default:
-      return null;
-  }
-}
-function getSheet(server: ServerName) {
+function getSpreadSheet(server: ServerName): GoogleAppsScript.Spreadsheet.Spreadsheet {
   const spreadsheetId = PropertiesService.getScriptProperties().getProperty(
     'SH_ID_' + ServerName[server].toUpperCase()
   );
@@ -71,13 +70,28 @@ function getSheet(server: ServerName) {
     return undefined;
   }
   const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
-  const sheet = spreadsheet.getSheetByName('time');
-  return sheet;
+  return spreadsheet;
 }
 
-function getMaintenanceTime() {
-  const spreadsheetId = PropertiesService.getScriptProperties().getProperty('SH_ID_ELPH');
-  const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+function getLatestSpawnTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
+  const sheet = spreadsheet.getSheetByName('time');
+  const spawnTime = {
+    golron: normalize(sheet.getRange(2, 1).getValue()),
+    golmodafu: normalize(sheet.getRange(2, 2).getValue())
+  };
+  return spawnTime;
+}
+
+function getJitter(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
+  const sheet = spreadsheet.getSheetByName('jitter');
+  const jitter = {
+    golron: sheet.getRange(2, 1).getValue(),
+    golmodafu: sheet.getRange(2, 2).getValue()
+  };
+  return jitter;
+}
+
+function getMaintenanceTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
   const sheet = spreadsheet.getSheetByName('maintenance');
   const maintenance: MaintenanceInfo = {
     end: sheet.getRange(2, 2).getValue(),
