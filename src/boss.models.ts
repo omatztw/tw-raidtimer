@@ -45,8 +45,9 @@ export class Boss {
         toBeScheduled.setDate(today.getDate());
 
         // 時間ずれ調整。1回ボスあたり1ボスズレ分(通常1分くらい)進めるかつ更新時の告知を設定
-        const offset = Math.round(this.calcOffset(toBeScheduled) * this.jitter) - before;
+        const offset = Math.round(this.calcOffset(toBeScheduled) * this.jitter);
         toBeScheduled.setMinutes(toBeScheduled.getMinutes() + offset);
+        toBeScheduled.setMinutes(toBeScheduled.getMinutes() - before);
 
         if (compareDate(toBeScheduled, today) === -1) {
           // Offset計算により、前日の日付になっていた場合は、最終的なトリガ設定時に本日の最後に設定されるためOffsetカウントを調整
@@ -66,8 +67,17 @@ export class Boss {
           }
         }
 
-        // 情報が古い場合は通知しない
-        if (this.isOldInfo(toBeScheduled)) {
+        // 本通知の日付を本日分に強制変換
+        toBeScheduled.setFullYear(today.getFullYear());
+        toBeScheduled.setMonth(today.getMonth());
+        toBeScheduled.setDate(today.getDate());
+
+        // 本通知に対応する沸き時間は、通知時刻 + before分で算出可能
+        const spawnDate = new Date(toBeScheduled.getTime() + before * 60 * 1000);
+        console.log(`The Boss ${this.bossType.name} will spawn at ${spawnDate}...`);
+
+        // 本通知に対応する沸き時間が古くて信用できない情報の場合は通知しない
+        if (this.isOldInfo(spawnDate)) {
           return;
         }
 
