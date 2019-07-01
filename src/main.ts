@@ -75,27 +75,30 @@ function getSpreadSheet(server: ServerName): GoogleAppsScript.Spreadsheet.Spread
 
 function getLatestSpawnTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
   const sheet = spreadsheet.getSheetByName('time');
+  const spawnTimeList = sheet.getRange(2, 1, 1, 2).getValues();
   const spawnTime = {
-    golron: normalize(sheet.getRange(2, 1).getValue()),
-    golmodafu: normalize(sheet.getRange(2, 2).getValue())
+    golron: normalize(spawnTimeList[0][0]),
+    golmodafu: normalize(spawnTimeList[0][1])
   };
   return spawnTime;
 }
 
 function getJitter(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
   const sheet = spreadsheet.getSheetByName('jitter');
+  const jitterTimeList = sheet.getRange(2, 1, 1, 2).getValues();
   const jitter = {
-    golron: sheet.getRange(2, 1).getValue(),
-    golmodafu: sheet.getRange(2, 2).getValue()
+    golron: jitterTimeList[0][0],
+    golmodafu: jitterTimeList[0][1]
   };
   return jitter;
 }
 
 function getMaintenanceTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
   const sheet = spreadsheet.getSheetByName('maintenance');
+  const maintenanceTime = sheet.getRange(2, 1, 1, 2).getValues();
   const maintenance: MaintenanceInfo = {
-    end: sheet.getRange(2, 2).getValue(),
-    start: sheet.getRange(2, 1).getValue()
+    start: maintenanceTime[0][0],
+    end: maintenanceTime[0][1]
   };
   return maintenance;
 }
@@ -163,7 +166,7 @@ function setTrigger(setTime: Date, func: string) {
   if (setTime < now) {
     return;
   }
-  console.log('This is scheduling: ' + func + ' on ' + setTime);
+  // console.log('This is scheduling: ' + func + ' on ' + setTime);
   ScriptApp.newTrigger(func)
     .timeBased()
     .at(setTime)
