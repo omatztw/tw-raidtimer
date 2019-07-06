@@ -121,7 +121,8 @@ export interface BossType {
 export enum ServerName {
   Elph,
   Rose,
-  Moen
+  Moen,
+  Common
 }
 
 export interface Schedule {

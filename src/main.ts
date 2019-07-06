@@ -15,12 +15,13 @@ const BOSS_TYPES = {
 function main() {
   delTrigger();
 
-  const sheetElph = getSpreadSheet(ServerName.Elph);
+  const sheetCommon = getSpreadSheet(ServerName.Common);
 
   const commonInfo: CommonInfo = {
-    maintenance: getMaintenanceTime(sheetElph)
+    maintenance: getMaintenanceTime(sheetCommon)
   };
 
+  const sheetElph = getSpreadSheet(ServerName.Elph);
   if (sheetElph) {
     const elphInfo = createBossInfo(sheetElph, ServerName.Elph, commonInfo);
     scheduling(elphInfo);
