@@ -105,20 +105,14 @@ function getMaintenanceTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadshee
 
 // HTTPリクエスト (DiscordのWebhook関連)
 
+// Elph
+
 function golronBossHookElph() {
   request('もうすぐゴルロンですよ！ m9( ﾟДﾟ) ﾄﾞｰﾝ', ServerName.Elph);
 }
 
 function modafuBossHookElph() {
   request('もうすぐゴルモダフですよ！ m9( ﾟДﾟ) ﾄﾞｰﾝ', ServerName.Elph);
-}
-
-function golronBossHookRose() {
-  request('次回「ゴルロン死す!」デュエルスタンバイ♡', ServerName.Rose);
-}
-
-function modafuBossHookRose() {
-  request('次回「ゴルモダフ死す!」デュエルスタンバイ♡', ServerName.Rose);
 }
 
 function golronBossHookLongElph() {
@@ -129,12 +123,40 @@ function modafuBossHookLongElph() {
   request('あと30分後くらいにゴルモダフですよ！', ServerName.Elph);
 }
 
+// Rose
+
+function golronBossHookRose() {
+  request('次回「ゴルロン死す!」デュエルスタンバイ♡', ServerName.Rose);
+}
+
+function modafuBossHookRose() {
+  request('次回「ゴルモダフ死す!」デュエルスタンバイ♡', ServerName.Rose);
+}
+
 function golronBossHookLongRose() {
   request('あと30分後くらいに「ゴルロン死す!」', ServerName.Rose);
 }
 
 function modafuBossHookLongRose() {
   request('あと30分後くらいに「ゴルモダフ死す!」', ServerName.Rose);
+}
+
+// Moen
+
+function golronBossHookMoen() {
+  request('ゴルロンの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
+}
+
+function modafuBossHookMoen() {
+  request('ゴルモダフの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
+}
+
+function golronBossHookLongMoen() {
+  request('30分後……ゴルロンの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
+}
+
+function modafuBossHookLongMoen() {
+  request('30分後……ゴルモダフの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
 }
 
 function request(value: string, server: ServerName) {
