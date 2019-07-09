@@ -2,13 +2,13 @@ import { Boss, CommonInfo, MaintenanceInfo, ServerName } from './boss.models';
 import { normalize } from './util';
 
 const BOSS_TYPES = {
-  Golmodafu: {
+  Gormodaf: {
     interval: 8,
-    name: 'Golmodafu'
+    name: 'Gormodaf'
   },
-  Golron: {
+  Gorlon: {
     interval: 6,
-    name: 'Golron'
+    name: 'Gorlon'
   }
 };
 
@@ -46,17 +46,17 @@ function createBossInfo(
   commonInfo: CommonInfo
 ) {
   const jitter = getJitter(spreadsheet);
-  const golron = new Boss(BOSS_TYPES.Golron, commonInfo, jitter.golron);
-  const golmodafu = new Boss(BOSS_TYPES.Golmodafu, commonInfo, jitter.golmodafu);
-  // console.log(`GOLMODAFU ${JITTER[ServerName[server]].golmodafu} on ${ServerName[server]}`);
+  const gorlon = new Boss(BOSS_TYPES.Gorlon, commonInfo, jitter.gorlon);
+  const gormodaf = new Boss(BOSS_TYPES.Gormodaf, commonInfo, jitter.gormodaf);
+  // console.log(`gormodaf ${JITTER[ServerName[server]].gormodaf} on ${ServerName[server]}`);
   const spawnTime = getLatestSpawnTime(spreadsheet);
 
-  golron.updateLatestSpawnTime(spawnTime.golron);
-  golmodafu.updateLatestSpawnTime(spawnTime.golmodafu);
+  gorlon.updateLatestSpawnTime(spawnTime.gorlon);
+  gormodaf.updateLatestSpawnTime(spawnTime.gormodaf);
 
   return {
-    golmodafu,
-    golron,
+    gormodaf,
+    gorlon,
     server
   };
 }
@@ -78,8 +78,8 @@ function getLatestSpawnTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadshee
   const sheet = spreadsheet.getSheetByName('time');
   const spawnTimeList = sheet.getRange(2, 1, 1, 2).getValues();
   const spawnTime = {
-    golron: normalize(spawnTimeList[0][0]),
-    golmodafu: normalize(spawnTimeList[0][1])
+    gorlon: normalize(spawnTimeList[0][0]),
+    gormodaf: normalize(spawnTimeList[0][1])
   };
   return spawnTime;
 }
@@ -88,8 +88,8 @@ function getJitter(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet) {
   const sheet = spreadsheet.getSheetByName('jitter');
   const jitterTimeList = sheet.getRange(2, 1, 1, 2).getValues();
   const jitter = {
-    golron: jitterTimeList[0][0],
-    golmodafu: jitterTimeList[0][1]
+    gorlon: jitterTimeList[0][0],
+    gormodaf: jitterTimeList[0][1]
   };
   return jitter;
 }
@@ -108,55 +108,55 @@ function getMaintenanceTime(spreadsheet: GoogleAppsScript.Spreadsheet.Spreadshee
 
 // Elph
 
-function golronBossHookElph() {
+function gorlonBossHookElph() {
   request('もうすぐゴルロンですよ！ m9( ﾟДﾟ) ﾄﾞｰﾝ', ServerName.Elph);
 }
 
-function modafuBossHookElph() {
+function modafBossHookElph() {
   request('もうすぐゴルモダフですよ！ m9( ﾟДﾟ) ﾄﾞｰﾝ', ServerName.Elph);
 }
 
-function golronBossHookLongElph() {
+function gorlonBossHookLongElph() {
   request('あと30分後くらいにゴルロンですよ！', ServerName.Elph);
 }
 
-function modafuBossHookLongElph() {
+function modafBossHookLongElph() {
   request('あと30分後くらいにゴルモダフですよ！', ServerName.Elph);
 }
 
 // Rose
 
-function golronBossHookRose() {
+function gorlonBossHookRose() {
   request('次回「ゴルロン死す!」デュエルスタンバイ♡', ServerName.Rose);
 }
 
-function modafuBossHookRose() {
+function modafBossHookRose() {
   request('次回「ゴルモダフ死す!」デュエルスタンバイ♡', ServerName.Rose);
 }
 
-function golronBossHookLongRose() {
+function gorlonBossHookLongRose() {
   request('あと30分後くらいに「ゴルロン死す!」', ServerName.Rose);
 }
 
-function modafuBossHookLongRose() {
+function modafBossHookLongRose() {
   request('あと30分後くらいに「ゴルモダフ死す!」', ServerName.Rose);
 }
 
 // Moen
 
-function golronBossHookMoen() {
+function gorlonBossHookMoen() {
   request('ゴルロンの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
 }
 
-function modafuBossHookMoen() {
+function modafBossHookMoen() {
   request('ゴルモダフの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
 }
 
-function golronBossHookLongMoen() {
+function gorlonBossHookLongMoen() {
   request('30分後……ゴルロンの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
 }
 
-function modafuBossHookLongMoen() {
+function modafBossHookLongMoen() {
   request('30分後……ゴルモダフの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
 }
 
@@ -196,19 +196,19 @@ function setTrigger(setTime: Date, func: string) {
     .create();
 }
 
-function scheduling(info: { golron: Boss; golmodafu: Boss; server: ServerName }) {
-  info.golron.scheduleList.forEach(schedule => {
+function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }) {
+  info.gorlon.scheduleList.forEach(schedule => {
     if (schedule.before > 10) {
-      setTrigger(schedule.time, 'golronBossHookLong' + ServerName[info.server]);
+      setTrigger(schedule.time, 'gorlonBossHookLong' + ServerName[info.server]);
     } else {
-      setTrigger(schedule.time, 'golronBossHook' + ServerName[info.server]);
+      setTrigger(schedule.time, 'gorlonBossHook' + ServerName[info.server]);
     }
   });
-  info.golmodafu.scheduleList.forEach(schedule => {
+  info.gormodaf.scheduleList.forEach(schedule => {
     if (schedule.before > 10) {
-      setTrigger(schedule.time, 'modafuBossHookLong' + ServerName[info.server]);
+      setTrigger(schedule.time, 'modafBossHookLong' + ServerName[info.server]);
     } else {
-      setTrigger(schedule.time, 'modafuBossHook' + ServerName[info.server]);
+      setTrigger(schedule.time, 'modafBossHook' + ServerName[info.server]);
     }
   });
 }
