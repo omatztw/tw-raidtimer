@@ -1,5 +1,6 @@
 import { Boss, CommonInfo, MaintenanceInfo, ServerName } from './boss.models';
-import { normalize } from './util';
+import { Bot, Message } from './bot.models';
+import { compareDate, normalize } from './util';
 
 const BOSS_TYPES = {
   Gormodaf: {
@@ -11,6 +12,34 @@ const BOSS_TYPES = {
     name: 'Gorlon'
   }
 };
+
+function filterOldMessages(messages: Message[]): string[] {
+  const today = new Date();
+  return messages
+    .filter(message => {
+      const index = message.timestamp.indexOf('.');
+      const timeStr = message.timestamp
+        .substring(0, index)
+        .replace(/T/g, ' ')
+        .replace(/-/g, '/');
+      const time = new Date(new Date(timeStr).getTime() + 1000 * 60 * 60 * 9);
+      return compareDate(time, today) === -1;
+    })
+    .map(message => message.id);
+}
+
+function deleteOldAlertMessage() {
+  const channelId = PropertiesService.getScriptProperties().getProperty('CH_ID');
+  const token = PropertiesService.getScriptProperties().getProperty('TOKEN');
+  if (!channelId || !token) {
+    return;
+  }
+  const bot = new Bot(token, channelId);
+  const messages = bot.getMessages();
+  // Botのメッセージで古いもののみを抽出
+  const old = filterOldMessages(messages.filter(message => message.author.bot));
+  bot.deleteBulkMessages(old);
+}
 
 function main() {
   delTrigger();
