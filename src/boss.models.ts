@@ -1,5 +1,9 @@
 import { compareDate } from './util';
 
+export function fetchAlertBefore() {
+  return [5, 10];
+}
+
 export class Boss {
   private get count(): number {
     return Math.round(24 / this.bossType.interval);
@@ -15,7 +19,7 @@ export class Boss {
   private jitter: number;
   private commonInfo: CommonInfo;
 
-  private alertBefore: number[] = [5];
+  private alertBefore: number[] = fetchAlertBefore();
 
   constructor(bossType: BossType, common: CommonInfo, jitter: number) {
     this.bossType = bossType;

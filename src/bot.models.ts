@@ -23,6 +23,19 @@ export class Bot {
     return messages;
   }
 
+  public deleteMessage(messageId: string) {
+    const url = this.API_BASE + '/channels/' + this.channelId + '/messages/' + messageId;
+
+    const options = {
+      method: 'delete',
+      headers: {
+        Authorization: 'Bot ' + this.token
+      }
+    };
+
+    UrlFetchApp.fetch(url, options as GoogleAppsScript.URL_Fetch.URLFetchRequestOptions);
+  }
+
   public deleteBulkMessages(messageIds: string[]) {
     let ids = messageIds;
     const DEL_MAX = 100;

@@ -1,4 +1,4 @@
-import { Boss, CommonInfo, MaintenanceInfo, ServerName } from './boss.models';
+import { Boss, CommonInfo, fetchAlertBefore, MaintenanceInfo, ServerName } from './boss.models';
 import { Bot, Message } from './bot.models';
 import { compareDate, normalize } from './util';
 
@@ -12,6 +12,8 @@ const BOSS_TYPES = {
     name: 'Gorlon'
   }
 };
+
+const LONG = fetchAlertBefore().length > 1 ? Math.max(...fetchAlertBefore()) : NaN;
 
 function filterOldMessages(messages: Message[]): string[] {
   const today = new Date();
@@ -29,7 +31,22 @@ function filterOldMessages(messages: Message[]): string[] {
 }
 
 function deleteOldAlertMessage() {
-  const channelId = PropertiesService.getScriptProperties().getProperty('CH_ID');
+  const channelIdList = [
+    PropertiesService.getScriptProperties().getProperty('CH_ID'),
+    PropertiesService.getScriptProperties().getProperty('CH_ID_LONG')
+  ];
+
+  channelIdList
+    .filter(id => !!id)
+    .forEach((id, index, array) => {
+      _deleteOldAlertMessage(id);
+      if (index !== array.length - 1) {
+        Utilities.sleep(2000);
+      }
+    });
+}
+
+function _deleteOldAlertMessage(channelId: string) {
   const token = PropertiesService.getScriptProperties().getProperty('TOKEN');
   if (!channelId || !token) {
     return;
@@ -146,11 +163,11 @@ function modafBossHookElph() {
 }
 
 function gorlonBossHookLongElph() {
-  request('あと30分後くらいにゴルロンですよ！', ServerName.Elph);
+  requestLong('あと' + LONG + '分後……ゴルロン……！', ServerName.Elph);
 }
 
 function modafBossHookLongElph() {
-  request('あと30分後くらいにゴルモダフですよ！', ServerName.Elph);
+  requestLong('あと' + LONG + '分後……ゴルモダフ……！', ServerName.Elph);
 }
 
 // Rose
@@ -164,11 +181,11 @@ function modafBossHookRose() {
 }
 
 function gorlonBossHookLongRose() {
-  request('あと30分後くらいに「ゴルロン死す!」', ServerName.Rose);
+  requestLong('あと' + LONG + '分後……「ゴルロン死す!」', ServerName.Rose);
 }
 
 function modafBossHookLongRose() {
-  request('あと30分後くらいに「ゴルモダフ死す!」', ServerName.Rose);
+  requestLong('あと' + LONG + '分後……「ゴルモダフ死す!」', ServerName.Rose);
 }
 
 // Moen
@@ -182,17 +199,37 @@ function modafBossHookMoen() {
 }
 
 function gorlonBossHookLongMoen() {
-  request('30分後……ゴルロンの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
+  requestLong('あと' + LONG + '分後……ゴルロン……!', ServerName.Moen);
 }
 
 function modafBossHookLongMoen() {
-  request('30分後……ゴルモダフの敗因は…たったひとつ単純な答えだ………『てめーはおれを怒らせた』', ServerName.Moen);
+  requestLong('あと' + LONG + '分後……ゴルモダフ……!', ServerName.Moen);
 }
 
 function request(value: string, server: ServerName) {
   const discordWebhook = PropertiesService.getScriptProperties().getProperty(
     'DISCORD_HOOK_' + ServerName[server].toUpperCase()
   );
+
+  if (!discordWebhook) {
+    return;
+  }
+
+  const message = {
+    content: value
+  };
+  postMessage(discordWebhook, message);
+}
+
+function requestLong(value: string, server: ServerName) {
+  const discordWebhook = PropertiesService.getScriptProperties().getProperty(
+    'DISCORD_HOOK_LONG_' + ServerName[server].toUpperCase()
+  );
+
+  if (!discordWebhook) {
+    return;
+  }
+
   const message = {
     content: value
   };
@@ -227,14 +264,14 @@ function setTrigger(setTime: Date, func: string) {
 
 function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }) {
   info.gorlon.scheduleList.forEach(schedule => {
-    if (schedule.before > 10) {
+    if (schedule.before === LONG) {
       setTrigger(schedule.time, 'gorlonBossHookLong' + ServerName[info.server]);
     } else {
       setTrigger(schedule.time, 'gorlonBossHook' + ServerName[info.server]);
     }
   });
   info.gormodaf.scheduleList.forEach(schedule => {
-    if (schedule.before > 10) {
+    if (schedule.before === LONG) {
       setTrigger(schedule.time, 'modafBossHookLong' + ServerName[info.server]);
     } else {
       setTrigger(schedule.time, 'modafBossHook' + ServerName[info.server]);
