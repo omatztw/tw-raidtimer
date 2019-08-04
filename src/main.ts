@@ -58,9 +58,7 @@ function _deleteOldAlertMessage(channelId: string) {
   bot.deleteBulkMessages(old);
 }
 
-function main() {
-  delTrigger();
-
+function main(force = false) {
   const sheetCommon = getSpreadSheet(ServerName.Common);
 
   const commonInfo: CommonInfo = {
@@ -70,19 +68,19 @@ function main() {
   const sheetElph = getSpreadSheet(ServerName.Elph);
   if (sheetElph) {
     const elphInfo = createBossInfo(sheetElph, ServerName.Elph, commonInfo);
-    scheduling(elphInfo);
+    scheduling(elphInfo, force);
   }
 
   const sheetRose = getSpreadSheet(ServerName.Rose);
   if (sheetRose) {
     const roseInfo = createBossInfo(sheetRose, ServerName.Rose, commonInfo);
-    scheduling(roseInfo);
+    scheduling(roseInfo, force);
   }
 
   const sheetMoen = getSpreadSheet(ServerName.Moen);
   if (sheetMoen) {
     const moenInfo = createBossInfo(sheetMoen, ServerName.Moen, commonInfo);
-    scheduling(moenInfo);
+    scheduling(moenInfo, force);
   }
 }
 
@@ -262,7 +260,29 @@ function setTrigger(setTime: Date, func: string) {
     .create();
 }
 
-function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }) {
+/**
+ * 直近(現在時刻から1分前～1分後の間)に通知予定があるかどうかを計算する
+ * @param bosses
+ */
+function isFireSoon(...bosses: Boss[]) {
+  const now = new Date();
+  now.setSeconds(0);
+  const minuteBefore = new Date(now.getTime() - 60000);
+  const minuteAfter = new Date(now.getTime() + 60000);
+  return bosses.some(boss => {
+    return boss.scheduleList.some(schedule => {
+      return minuteBefore.getTime() <= schedule.time.getTime() && minuteAfter.getTime() >= schedule.time.getTime();
+    });
+  });
+}
+
+function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }, force: boolean) {
+  // 直近で通知予定がある場合は実行しない。
+  if (!force && isFireSoon(info.gorlon, info.gormodaf)) {
+    console.log('Skip scheduling because a trigger will be fired soon...');
+    return;
+  }
+  delTrigger();
   info.gorlon.scheduleList.forEach(schedule => {
     if (schedule.before === LONG) {
       setTrigger(schedule.time, 'gorlonBossHookLong' + ServerName[info.server]);
@@ -280,7 +300,8 @@ function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }) 
 }
 
 function just() {
-  main();
+  // 0時ちょうどの更新は確実に実行する
+  main(true);
 }
 
 function setJust() {
