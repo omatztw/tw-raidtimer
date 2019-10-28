@@ -58,7 +58,11 @@ function _deleteOldAlertMessage(channelId: string) {
   bot.deleteBulkMessages(old);
 }
 
-function main(force = false) {
+function main() {
+  setTimer(false);
+}
+
+function setTimer(force: boolean) {
   const sheetCommon = getSpreadSheet(ServerName.Common);
 
   const commonInfo: CommonInfo = {
@@ -250,7 +254,10 @@ function postMessage(url, message) {
 
 function setTrigger(setTime: Date, func: string) {
   const now = new Date();
-  if (setTime < now) {
+
+  // 1分前までは誤差なので、1分前以前の通知のみスキップ。
+  // 現在時刻が過ぎているトリガーは即時発火する
+  if (setTime.getTime() < now.getTime() - 60000) {
     return;
   }
   // console.log('This is scheduling: ' + func + ' on ' + setTime);
@@ -261,17 +268,19 @@ function setTrigger(setTime: Date, func: string) {
 }
 
 /**
- * 直近(現在時刻から1分前～1分後の間)に通知予定があるかどうかを計算する
+ * 直近(現在時刻から2分前～2分後の間)に通知予定があるかどうかを計算する
  * @param bosses
  */
 function isFireSoon(...bosses: Boss[]) {
   const now = new Date();
   now.setSeconds(0);
-  const minuteBefore = new Date(now.getTime() - 60000);
-  const minuteAfter = new Date(now.getTime() + 60000);
+  const minuteBefore = new Date(now.getTime() - 120000);
+  const minuteAfter = new Date(now.getTime() + 120000);
   return bosses.some(boss => {
     return boss.scheduleList.some(schedule => {
-      return minuteBefore.getTime() <= schedule.time.getTime() && minuteAfter.getTime() >= schedule.time.getTime();
+      const check =
+        minuteBefore.getTime() <= schedule.time.getTime() && minuteAfter.getTime() >= schedule.time.getTime();
+      return check;
     });
   });
 }
@@ -301,7 +310,7 @@ function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }, 
 
 function just() {
   // 0時ちょうどの更新は確実に実行する
-  main(true);
+  setTimer(true);
 }
 
 function setJust() {

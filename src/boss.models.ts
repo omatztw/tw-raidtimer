@@ -103,12 +103,12 @@ export class Boss {
    * メンテ後に更新されていない場合を判定する
    */
   private isOldInfo(toBeScheduled: Date): boolean {
-    if (toBeScheduled >= this.commonInfo.maintenance.start && toBeScheduled <= this.commonInfo.maintenance.end) {
-      // メンテ中
-      return true;
-    }
+    // if (toBeScheduled >= this.commonInfo.maintenance.start && toBeScheduled <= this.commonInfo.maintenance.end) {
+    //   // メンテ中
+    //   return true;
+    // }
 
-    if (this.latestSpawnTime < this.commonInfo.maintenance.end && toBeScheduled > this.commonInfo.maintenance.end) {
+    if (this.latestSpawnTime < this.commonInfo.maintenance.start && toBeScheduled > this.commonInfo.maintenance.start) {
       // メンテ後シート情報が更新されていない
       return true;
     }
