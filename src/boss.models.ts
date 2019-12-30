@@ -113,6 +113,11 @@ export class Boss {
       return true;
     }
 
+    // もう更新されていないシート・・・ (2週間すぎたら)
+    if (this.commonInfo.maintenance.start.getTime() - this.latestSpawnTime.getTime() > 14 * 24 * 60 * 60 * 1000) {
+      return true;
+    }
+
     return false;
   }
 }
