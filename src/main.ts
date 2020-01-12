@@ -260,7 +260,7 @@ function setTrigger(setTime: Date, func: string) {
   if (setTime.getTime() < now.getTime() - 60000) {
     return;
   }
-  // console.log('This is scheduling: ' + func + ' on ' + setTime);
+  console.log('This is scheduling: ' + func + ' on ' + setTime);
   ScriptApp.newTrigger(func)
     .timeBased()
     .at(setTime)
