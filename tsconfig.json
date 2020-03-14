@@ -4,6 +4,7 @@
     "lib": ["esnext"],
     "experimentalDecorators": true,
     "types": [
+      "@types/node",
       "@types/google-apps-script"
     ]
   }
