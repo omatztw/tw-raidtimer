@@ -292,20 +292,45 @@ function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }, 
     return;
   }
   delTrigger();
-  info.gorlon.scheduleList.forEach(schedule => {
-    if (schedule.before === LONG) {
-      setTrigger(schedule.time, 'gorlonBossHookLong' + ServerName[info.server]);
+
+  // 直近のタイマーを先に設定するために全部のトリガーをマージして並べ替える
+  const mergedScheduleList: Array<{ time: Date; before: number; boss: string }> = [];
+  mergedScheduleList.push(...info.gorlon.scheduleList.map(s => Object.assign(s, { boss: 'gorlon' })));
+  mergedScheduleList.push(...info.gormodaf.scheduleList.map(s => Object.assign(s, { boss: 'modaf' })));
+  mergedScheduleList.sort((a, b) => a.time.getTime() - b.time.getTime());
+
+  mergedScheduleList.forEach(schedule => {
+    if (schedule.boss === 'gorlon') {
+      if (schedule.before === LONG) {
+        setTrigger(schedule.time, 'gorlonBossHookLong' + ServerName[info.server]);
+      } else {
+        setTrigger(schedule.time, 'gorlonBossHook' + ServerName[info.server]);
+      }
+    } else if (schedule.boss === 'modaf') {
+      if (schedule.before === LONG) {
+        setTrigger(schedule.time, 'modafBossHookLong' + ServerName[info.server]);
+      } else {
+        setTrigger(schedule.time, 'modafBossHook' + ServerName[info.server]);
+      }
     } else {
-      setTrigger(schedule.time, 'gorlonBossHook' + ServerName[info.server]);
+      console.log('[ERROR] Wrong boss type: ' + schedule.boss);
     }
   });
-  info.gormodaf.scheduleList.forEach(schedule => {
-    if (schedule.before === LONG) {
-      setTrigger(schedule.time, 'modafBossHookLong' + ServerName[info.server]);
-    } else {
-      setTrigger(schedule.time, 'modafBossHook' + ServerName[info.server]);
-    }
-  });
+
+  // info.gorlon.scheduleList.forEach(schedule => {
+  //   if (schedule.before === LONG) {
+  //     setTrigger(schedule.time, 'gorlonBossHookLong' + ServerName[info.server]);
+  //   } else {
+  //     setTrigger(schedule.time, 'gorlonBossHook' + ServerName[info.server]);
+  //   }
+  // });
+  // info.gormodaf.scheduleList.forEach(schedule => {
+  //   if (schedule.before === LONG) {
+  //     setTrigger(schedule.time, 'modafBossHookLong' + ServerName[info.server]);
+  //   } else {
+  //     setTrigger(schedule.time, 'modafBossHook' + ServerName[info.server]);
+  //   }
+  // });
 }
 
 function just() {

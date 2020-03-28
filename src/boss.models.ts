@@ -87,9 +87,6 @@ export class Boss {
         }
 
         this.scheduleList.push({ time: toBeScheduled, before });
-
-        // ソートする（直近のタイマーを先に設定するため）
-        this.scheduleList.sort((a, b) => a.time.getTime() - b.time.getTime());
       });
     }
   }
