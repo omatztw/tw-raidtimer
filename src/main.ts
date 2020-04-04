@@ -295,8 +295,17 @@ function scheduling(info: { gorlon: Boss; gormodaf: Boss; server: ServerName }, 
 
   // 直近のタイマーを先に設定するために全部のトリガーをマージして並べ替える
   const mergedScheduleList: Array<{ time: Date; before: number; boss: string }> = [];
-  mergedScheduleList.push(...info.gorlon.scheduleList.map(s => Object.assign(s, { boss: 'gorlon' })));
-  mergedScheduleList.push(...info.gormodaf.scheduleList.map(s => Object.assign(s, { boss: 'modaf' })));
+  mergedScheduleList.push(
+    ...info.gorlon.scheduleList.map(s => {
+      return { time: s.time, before: s.before, boss: 'gorlon' };
+    })
+  );
+
+  mergedScheduleList.push(
+    ...info.gormodaf.scheduleList.map(s => {
+      return { time: s.time, before: s.before, boss: 'modaf' };
+    })
+  );
   mergedScheduleList.sort((a, b) => a.time.getTime() - b.time.getTime());
 
   mergedScheduleList.forEach(schedule => {
