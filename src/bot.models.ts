@@ -1,5 +1,5 @@
 export class Bot {
-  private API_BASE = 'https://discord.com/api/v6';
+  private API_BASE = 'https://discordapp.com/api/v6';
   private token: string;
   private channelId: string;
 
