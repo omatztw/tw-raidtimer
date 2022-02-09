@@ -70,7 +70,7 @@ https://docs.google.com/spreadsheets/d/1KERIGb-44loJVIU5sq0pm3ZlHfSRfEGqzEDJeNh3
   - https://gitforwindows.org/
 - Node.js
   - https://nodejs.org/ja/
-- Yarn
+- Yarn  
   Node.js(NPM)をインストールした後に、PowerShell 等を開いて以下コマンドでインストールされます
   ```
   npm install -g yarn
